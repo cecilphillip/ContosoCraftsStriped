@@ -8,7 +8,16 @@ This repo contains a sample application that shows how to integrate Stripe Check
 
 ## Spinning up the environment
 
-Build and run the `ContosoCrafts.Web.Server` project.
+Go to the `appsettings.json` file in the [ContosoCrafts.Web.Server](src/ContosoCrafts.Web.Server) project. Add your publishble key and secret key that's asssociated with your Stripe account.
+
+```JSON
+"Stripe": {
+    "PubKey": "",
+    "SecretKey": ""
+  }
+```
+
+Build and run the [ContosoCrafts.Web.Server](src/ContosoCrafts.Web.Server) project.
 
 ```bash
 > cd src/ContosoCrafts.Web.Server
