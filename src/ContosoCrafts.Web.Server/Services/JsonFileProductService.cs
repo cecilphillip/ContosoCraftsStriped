@@ -5,7 +5,6 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ContosoCrafts.Web.Shared.Models;
 using Microsoft.Extensions.FileProviders;
-using Stripe;
 using Stripe.Checkout;
 
 namespace ContosoCrafts.Web.Server.Services
@@ -56,11 +55,9 @@ namespace ContosoCrafts.Web.Server.Services
 
         public async Task<CheckoutResponse> CheckOut(IEnumerable<CartItem> Items, string callbackRoot)
         {
-
-
             var sessionOptions = new SessionCreateOptions()
             {
-                SuccessUrl = $"{callbackRoot}/checkout/success", /// redirect after checkout
+                SuccessUrl = $"{callbackRoot}/api/checkout/session?session_id=" + "{CHECKOUT_SESSION_ID}", /// redirect after checkout
                 CancelUrl = $"{callbackRoot}/checkout/failure",  /// checkout cancelled
                 PaymentMethodTypes = new List<string> { "card" },
                 CustomerEmail = "cecilphillip@yahoo.com",
