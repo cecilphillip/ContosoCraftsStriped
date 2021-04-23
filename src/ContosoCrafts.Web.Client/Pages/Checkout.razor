@@ -1,0 +1,23 @@
+@page "/checkout/success"
+@inject NavigationManager NavManager
+@inject IHttpClientFactory ClientFactory
+
+@if (CheckoutSessionInfo != null)
+{
+    <div>
+        @CheckoutSessionInfo.CustomerEmail
+    </div>
+}
+
+@code {
+    protected CheckoutInfo CheckoutSessionInfo { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = ClientFactory.CreateClient("localapi");
+        CheckoutSessionInfo = await client.GetFromJsonAsync<CheckoutInfo>($"/api/checkout/info");
+        StateHasChanged();
+
+        await base.OnInitializedAsync();
+    }
+}

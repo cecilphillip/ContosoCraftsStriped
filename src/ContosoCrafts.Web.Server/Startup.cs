@@ -31,6 +31,7 @@ namespace ContosoCrafts.Web.Server
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddDistributedMemoryCache();
             services.AddResponseCompression(opts =>
             {
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(

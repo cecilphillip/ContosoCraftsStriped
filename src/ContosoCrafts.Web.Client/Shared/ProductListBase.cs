@@ -13,7 +13,6 @@ namespace ContosoCrafts.Web.Client.Shared
 {
     public class ProductListBase : ComponentBase
     {
-
         [Inject]
         private IEventAggregator EventAggregator { get; set; }
 
@@ -64,7 +63,6 @@ namespace ContosoCrafts.Web.Client.Shared
         protected async Task AddToCart(string productId, string title)
         {
             // get state
-
             var state = await LocalStorage.GetItemAsync<Dictionary<string, CartItem>>("state.cart") ?? new();
             if (state.ContainsKey(productId))
             {
