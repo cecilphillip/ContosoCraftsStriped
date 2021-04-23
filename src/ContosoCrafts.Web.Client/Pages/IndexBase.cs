@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
-namespace ContosoCrafts.Web.Client.Shared
+namespace ContosoCrafts.Web.Client.Pages
 {
     public class IndexBase : ComponentBase, IAsyncDisposable
     {
@@ -48,15 +48,6 @@ namespace ContosoCrafts.Web.Client.Shared
                 }
 
                 await module.InvokeVoidAsync("checkout", pubKey, chkResp.CheckoutSessionID);
-
-            });
-
-            hubConnection.On<string>("CheckoutCompleted", (status) =>
-            {
-                if (status == "success")
-                    toastService.ShowSuccess("Checkout completed", "Success");
-                else if (status == "failure")
-                    toastService.ShowError("Unable to process payment", "Payment Failed");
             });
 
             await hubConnection.StartAsync();
