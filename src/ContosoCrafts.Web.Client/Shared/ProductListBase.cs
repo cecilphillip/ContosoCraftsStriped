@@ -74,10 +74,10 @@ namespace ContosoCrafts.Web.Client.Shared
             else
             {
                 // Add product to cart
-                state[productId] = new CartItem { Title = title, Quantity = 1 };
+                state[productId] = new CartItem { Id = productId, Title = title, Quantity = 1 };
             }
 
-            // persist state in dapr                       
+            // persist state in dapr
             await LocalStorage.SetItemAsync("state.cart", state);
             await EventAggregator.PublishAsync(new ShoppingCartUpdated { ItemCount = state.Keys.Count });
         }

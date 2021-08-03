@@ -9,5 +9,6 @@ namespace ContosoCrafts.Web.Shared.Models
         public string Title { get; set; }
         public string Description { get; set; }
         public int[] Ratings { get; set; }
+        public long Price { get; set; }
     }
 }

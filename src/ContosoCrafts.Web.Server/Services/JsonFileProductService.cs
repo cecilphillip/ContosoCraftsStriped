@@ -5,14 +5,20 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ContosoCrafts.Web.Shared.Models;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Stripe.Checkout;
 
 namespace ContosoCrafts.Web.Server.Services
 {
     public class JsonFileProductService : IProductService
     {
-        public JsonFileProductService()
+
+        private readonly ILogger<JsonFileProductService> logger;
+
+        public JsonFileProductService(ILogger<JsonFileProductService> logger)
         {
+            this.logger = logger;
+
             var manifestEmbeddedProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly);
             var fileInfo = manifestEmbeddedProvider.GetFileInfo("_data/products.json");
             using var reader = new StreamReader(fileInfo.CreateReadStream());
@@ -55,25 +61,35 @@ namespace ContosoCrafts.Web.Server.Services
 
         public async Task<CheckoutResponse> CheckOut(IEnumerable<CartItem> Items, string callbackRoot)
         {
+            logger.LogInformation($"Count: {Items.Count()}");
+
+            List<SessionLineItemOptions> lineItems = new List<SessionLineItemOptions>();
+
+            foreach(var item in Items) {
+                // Lookup the product so we can use it's Price
+                var product = await GetProduct(item.Id);
+
+                lineItems.Add(new SessionLineItemOptions() {
+                    PriceData = new()
+                    {
+                        UnitAmount = product.Price,
+                        ProductData = new()
+                        {
+                            Name = item.Title,
+                            Images = new List<string> { product.Image },
+                        },
+                        Currency = "USD",
+                    },
+                    Quantity = item.Quantity,
+                });
+            }
+
             var sessionOptions = new SessionCreateOptions()
             {
                 SuccessUrl = $"{callbackRoot}/api/checkout/session?session_id=" + "{CHECKOUT_SESSION_ID}", /// redirect after checkout
                 CancelUrl = $"{callbackRoot}/checkout/failure",  /// checkout cancelled
                 PaymentMethodTypes = new List<string> { "card" },
-                CustomerEmail = "cecilphillip@yahoo.com",
-                LineItems = new List<SessionLineItemOptions>
-                {
-                  new() {
-                      PriceData = new() {
-                            UnitAmount = 2000L,
-                            ProductData = new SessionLineItemPriceDataProductDataOptions{
-                                Name = "Stuff"
-                            },
-                            Currency = "USD"
-                    },
-                    Quantity = 100L
-                  }
-                },
+                LineItems = lineItems,
                 Mode = "payment"
             };
 

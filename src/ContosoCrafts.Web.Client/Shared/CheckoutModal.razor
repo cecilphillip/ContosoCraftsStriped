@@ -65,12 +65,11 @@
         if (Items == null || !Items.Any()) return;
 
         var client = ClientFactory.CreateClient("localapi");
-        await LocalStorage.RemoveItemAsync("state.cart");
         await client.PostAsJsonAsync($"api/checkout", Items);
+        await LocalStorage.RemoveItemAsync("state.cart");
 
         Items = null;
         await Aggregator.PublishAsync(new ShoppingCartUpdated { ItemCount = 0 });
-       
-    }
 
     }
+}

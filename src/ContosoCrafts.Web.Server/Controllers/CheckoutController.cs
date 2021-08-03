@@ -42,7 +42,7 @@ namespace ContosoCrafts.Web.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CheckoutOrder(IEnumerable<CartItem> items, [FromServices] IServiceProvider sp)
+        public async Task<ActionResult> CheckoutOrder([FromBody]IEnumerable<CartItem> items, [FromServices] IServiceProvider sp)
         {
             logger.LogInformation("Order received...");
 
@@ -61,15 +61,12 @@ namespace ContosoCrafts.Web.Server.Controllers
         public async Task<ActionResult> CheckoutSuccess(string session_id)
         {
             var sessionService = new SessionService();
-            Session session = sessionService.Get(session_id);
-
-            var customerService = new CustomerService();
-            Customer customer = customerService.Get(session.CustomerId);
+            Session session = await sessionService.GetAsync(session_id);
 
             var checkoutInfo = new CheckoutInfo
             {
                 AmountTotal = session.AmountTotal.Value,
-                CustomerEmail = session.CustomerEmail
+                CustomerEmail = session.CustomerDetails.Email
             };
 
             var checkoutStr = JsonSerializer.Serialize<CheckoutInfo>(checkoutInfo);
