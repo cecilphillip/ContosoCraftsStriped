@@ -50,9 +50,9 @@ namespace ContosoCrafts.Web.Server.Controllers
             var callbackRoot = server.Features.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
 
             var checkoutResponse = await productService.CheckOut(items, callbackRoot);
-            // var pubKey = configuration["Stripe:PubKey"];
+            var pubKey = configuration["Stripe:PubKey"];
 
-            await eventsHub.Clients.All.SendAsync("CheckoutSessionStarted", "unknown-key", checkoutResponse);
+            await eventsHub.Clients.All.SendAsync("CheckoutSessionStarted", pubKey, checkoutResponse);
             return Ok();
         }
 
