@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ContosoCrafts.Web.Server.Services;
 using System;
-using Stripe;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using ContosoCrafts.Web.Server.Hubs;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -24,8 +23,6 @@ namespace ContosoCrafts.Web.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            StripeConfiguration.ApiKey = Configuration["Stripe:SecretKey"];
-
             services.AddHttpContextAccessor();
             services.AddRazorPages();
             services.AddControllers();

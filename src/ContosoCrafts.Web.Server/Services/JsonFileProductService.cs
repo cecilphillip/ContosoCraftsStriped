@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ContosoCrafts.Web.Shared.Models;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
-using Stripe.Checkout;
 
 namespace ContosoCrafts.Web.Server.Services
 {
@@ -61,42 +60,11 @@ namespace ContosoCrafts.Web.Server.Services
 
         public async Task<CheckoutResponse> CheckOut(IEnumerable<CartItem> Items, string callbackRoot)
         {
-            logger.LogInformation($"Count: {Items.Count()}");
+            logger.LogInformation($"Checking out from the JsonFilePRoductService...");
 
-            List<SessionLineItemOptions> lineItems = new List<SessionLineItemOptions>();
+            // Create a payment flow from the items in the cart.
 
-            foreach(var item in Items) {
-                // Lookup the product so we can use it's Price
-                var product = await GetProduct(item.Id);
-
-                lineItems.Add(new SessionLineItemOptions() {
-                    PriceData = new()
-                    {
-                        UnitAmount = product.Price,
-                        ProductData = new()
-                        {
-                            Name = item.Title,
-                            Images = new List<string> { product.Image },
-                        },
-                        Currency = "USD",
-                    },
-                    Quantity = item.Quantity,
-                });
-            }
-
-            var sessionOptions = new SessionCreateOptions()
-            {
-                SuccessUrl = $"{callbackRoot}/api/checkout/session?session_id=" + "{CHECKOUT_SESSION_ID}", /// redirect after checkout
-                CancelUrl = $"{callbackRoot}/checkout/failure",  /// checkout cancelled
-                PaymentMethodTypes = new List<string> { "card" },
-                LineItems = lineItems,
-                Mode = "payment"
-            };
-
-            var checkoutService = new SessionService();
-            var session = await checkoutService.CreateAsync(sessionOptions);
-
-            return new CheckoutResponse(session.Id);
+            return new CheckoutResponse("unknown");
         }
     }
 }

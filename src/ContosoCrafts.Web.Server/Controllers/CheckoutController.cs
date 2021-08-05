@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Stripe.Checkout;
-using Stripe;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using ContosoCrafts.Web.Server.Hubs;
@@ -46,27 +44,28 @@ namespace ContosoCrafts.Web.Server.Controllers
         {
             logger.LogInformation("Order received...");
 
+            // Build the URL to which the customer will be redirected after paying.
             var host = $"{Request.Scheme}://{Request.Host.ToString()}";
             var server = sp.GetRequiredService<IServer>();
-            var address = server.Features.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
+            var callbackRoot = server.Features.Get<IServerAddressesFeature>().Addresses.FirstOrDefault();
 
-            var checkoutResponse = await productService.CheckOut(items, address);
-            var pubKey = configuration["Stripe:PubKey"];
+            var checkoutResponse = await productService.CheckOut(items, callbackRoot);
+            // var pubKey = configuration["Stripe:PubKey"];
 
-            await eventsHub.Clients.All.SendAsync("CheckoutSessionStarted", pubKey, checkoutResponse);
+            await eventsHub.Clients.All.SendAsync("CheckoutSessionStarted", "unknown-key", checkoutResponse);
             return Ok();
         }
 
         [HttpGet("session")]
         public async Task<ActionResult> CheckoutSuccess(string session_id)
         {
-            var sessionService = new SessionService();
-            Session session = await sessionService.GetAsync(session_id);
+            // var sessionService = new SessionService();
+            // Session session = await sessionService.GetAsync(session_id);
 
             var checkoutInfo = new CheckoutInfo
             {
-                AmountTotal = session.AmountTotal.Value,
-                CustomerEmail = session.CustomerDetails.Email
+                AmountTotal = 0, //session.AmountTotal.Value,
+                CustomerEmail = "Unknown" // session.CustomerDetails.Email
             };
 
             var checkoutStr = JsonSerializer.Serialize<CheckoutInfo>(checkoutInfo);

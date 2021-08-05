@@ -25,13 +25,14 @@
                             <tbody>
                                 @if (Items != null)
                                 {
-                    @foreach (var item in Items)
-                    {
-    <tr>
-        <td>@item.Title</td>
-        <td>@item.Quantity</td>
-    </tr>
-}}
+                                    @foreach (var item in Items)
+                                    {
+                                        <tr>
+                                            <td>@item.Title</td>
+                                            <td>@item.Quantity</td>
+                                        </tr>
+                                    }
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -70,6 +71,5 @@
 
         Items = null;
         await Aggregator.PublishAsync(new ShoppingCartUpdated { ItemCount = 0 });
-
     }
 }

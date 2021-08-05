@@ -44,7 +44,7 @@ namespace ContosoCrafts.Web.Client.Pages
 
                 if (module == null)
                 {
-                    module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/stripe.js");
+                    module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/checkout.js");
                 }
 
                 await module.InvokeVoidAsync("checkout", pubKey, chkResp.CheckoutSessionID);
