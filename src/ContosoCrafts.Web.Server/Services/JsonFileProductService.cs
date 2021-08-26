@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ContosoCrafts.Web.Shared.Models;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
+using Stripe.Checkout;
 
 namespace ContosoCrafts.Web.Server.Services
 {
@@ -63,8 +64,35 @@ namespace ContosoCrafts.Web.Server.Services
             logger.LogInformation($"Checking out from the JsonFilePRoductService...");
 
             // Create a payment flow from the items in the cart.
-
-            return new CheckoutResponse("unknown");
+            var options = new SessionCreateOptions
+            {
+              SuccessUrl = $"{callbackRoot}/api/checkout/session?session_id=" + "{CHECKOUT_SESSION_ID}", /// redirect after checkout
+              CancelUrl = $"{callbackRoot}/checkout/failure",  /// checkout cancelled
+              PaymentMethodTypes = new List<string>
+              {
+                "card",
+              },
+              LineItems = new List<SessionLineItemOptions>
+              {
+                new SessionLineItemOptions
+                {
+                  PriceData = new()
+                  {
+                    UnitAmount = 1000L,
+                    Currency = "USD",
+                    ProductData = new()
+                    {
+                        Name = "Example",
+                    },
+                  },
+                  Quantity = 2,
+                },
+              },
+              Mode = "payment",
+            };
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
+            return new CheckoutResponse(session.Id);
         }
     }
 }
