@@ -5,7 +5,10 @@
 @if (CheckoutSessionInfo != null)
 {
     <div>
-        @CheckoutSessionInfo.CustomerEmail
+        Thank you, @CheckoutSessionInfo.CustomerEmail!
+    </div>
+    <div>
+        Total: @string.Format("{0:C}", CheckoutSessionInfo.AmountTotal / 100)
     </div>
 }
 

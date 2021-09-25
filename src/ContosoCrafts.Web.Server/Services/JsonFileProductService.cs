@@ -5,14 +5,20 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ContosoCrafts.Web.Shared.Models;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Stripe.Checkout;
 
 namespace ContosoCrafts.Web.Server.Services
 {
     public class JsonFileProductService : IProductService
     {
-        public JsonFileProductService()
+
+        private readonly ILogger<JsonFileProductService> logger;
+
+        public JsonFileProductService(ILogger<JsonFileProductService> logger)
         {
+            this.logger = logger;
+
             var manifestEmbeddedProvider = new ManifestEmbeddedFileProvider(typeof(Program).Assembly);
             var fileInfo = manifestEmbeddedProvider.GetFileInfo("_data/products.json");
             using var reader = new StreamReader(fileInfo.CreateReadStream());
@@ -55,31 +61,37 @@ namespace ContosoCrafts.Web.Server.Services
 
         public async Task<CheckoutResponse> CheckOut(IEnumerable<CartItem> Items, string callbackRoot)
         {
-            var sessionOptions = new SessionCreateOptions()
+            logger.LogInformation($"Checking out from the JsonFilePRoductService...");
+
+            // Create a payment flow from the items in the cart.
+            var options = new SessionCreateOptions
             {
-                SuccessUrl = $"{callbackRoot}/api/checkout/session?session_id=" + "{CHECKOUT_SESSION_ID}", /// redirect after checkout
-                CancelUrl = $"{callbackRoot}/checkout/failure",  /// checkout cancelled
-                PaymentMethodTypes = new List<string> { "card" },
-                CustomerEmail = "cecilphillip@yahoo.com",
-                LineItems = new List<SessionLineItemOptions>
-                {
-                  new() {
-                      PriceData = new() {
-                            UnitAmount = 2000L,
-                            ProductData = new SessionLineItemPriceDataProductDataOptions{
-                                Name = "Stuff"
-                            },
-                            Currency = "USD"
-                    },
-                    Quantity = 100L
-                  }
-                },
-                Mode = "payment"
+              SuccessUrl = $"{callbackRoot}/api/checkout/session?session_id=" + "{CHECKOUT_SESSION_ID}", /// redirect after checkout
+              CancelUrl = $"{callbackRoot}/checkout/failure",  /// checkout cancelled
+              PaymentMethodTypes = new List<string>
+              {
+                "card",
+              },
+              LineItems = new List<SessionLineItemOptions>
+              {
+                new SessionLineItemOptions
+                {
+                  PriceData = new()
+                  {
+                    UnitAmount = 1000L,
+                    Currency = "USD",
+                    ProductData = new()
+                    {
+                        Name = "Example",
+                    },
+                  },
+                  Quantity = 2,
+                },
+              },
+              Mode = "payment",
             };
-
-            var checkoutService = new SessionService();
-            var session = await checkoutService.CreateAsync(sessionOptions);
-
+            var service = new SessionService();
+            var session = await service.CreateAsync(options);
             return new CheckoutResponse(session.Id);
         }
     }
